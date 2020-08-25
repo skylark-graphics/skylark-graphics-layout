@@ -5,5 +5,5 @@
  * @link www.skylarkjs.org
  * @license MIT
  */
-define(["./layout","./DisplayMode","./FloatMode","./Flow","./Location","./Margin","./MeasureType","./MeasureUnit","./MeasureValue","./Padding","./PositionMode","./Restriction","./Size"],function(e){return e});
+define(["./layout","./AnchorStyle","./Bounds","./Direction","./DisplayMode","./FloatMode","./Flow","./HorzAlign","./Location","./Margin","./Padding","./PositionMode","./Restriction","./Size","./VertAlign"],function(o){return o});
 //# sourceMappingURL=sourcemaps/main.js.map

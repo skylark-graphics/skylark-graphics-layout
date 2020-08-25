@@ -1,9 +1,0 @@
-/**
- * skylark-graphics-layout - The skylark measure class library.
- * @author Hudaokeji Co.,Ltd
- * @version v0.9.1
- * @link www.skylarkjs.org
- * @license MIT
- */
-define(["skylark-langx/langx","./layout","./MeasureType","./MeasureUnit"],function(n,e,u,i){var r=n.klass({klassName:"MeasureValue",mtype:{get:function(){return this._.mtype},set:function(t){var n=this._;switch(n.mtype=t,t){case u.auto:n.unit=null,n.value=null;break;case u.percent:n.unit=null}}},unit:{get:function(){return this._.unit},set:function(n){var e=this._;switch(t=e.mtype,t){case u.unit:e.unit=n}}},value:{get:function(){return this._.value},set:function(n){var e=this._;switch(t=e.mtype,t){case u.unit:case u.percent:e.value=n}}},clone:function(){var t=this._;return new r(t.mtype,t.unit,t.value)},notEqual:function(t){return!t||t.mtype!=this.mtype||t.unit!=this.unit||t.value!=this.value},equal:function(t){return!this.notEqual(t)},toString:function(){switch(this.mtype){case u.auto:case u.min:case u.max:case u.mid:return this.mtype.toString();case u.unit:return this.value+this.unit.toString();case u.percent:return this.value+"%"}},_construct:function(t,n,e){var u={};void 0!=t&&(u.mtype=t),void 0!=n&&(u.value=n),void 0!=e&&(u.unit=e),this._=u}});return r.fromNumber=function(t){return new r(u.unit,t,i.px)},r.fromString=function(t){if("auto"==t)return r.auto;if("min"==t)return r.min;if("max"==t)return r.max;if("mid"==t)return r.mid;for(var n,e,a,s=i.map(function(t){return t.getText()}).concat("%"),o=0;o<s.length;o++)if(-1!=t.indexOf(s[o])){e=parseInt(t.substring(0,t.length-s[o].length),10),"%"==s[o]?n=u.percent:(n=u.unit,a=i.fromString(s[o]));break}return new r(n,e,a)},r.fromPlain=function(t){return new r(t.mtype,t.value,t.unit)},r.fromArray=function(t){return new r(t[0],t.length>1?t[1]:"undefined",t.length>1?t[2]:void 0)},r.auto=new r(u.auto),r.mid=new r(u.mid),r.min=new r(u.min),r.max=new r(u.max),e.MeasureValue=r});
-//# sourceMappingURL=sourcemaps/MeasureValue.js.map

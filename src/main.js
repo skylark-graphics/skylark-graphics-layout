@@ -1,17 +1,19 @@
 define([
     "./layout",
+    "./AnchorStyle",
+    "./Bounds",
+    "./Direction",
     "./DisplayMode",
     "./FloatMode",
     "./Flow",
+    "./HorzAlign",
     "./Location",
     "./Margin",
-    "./MeasureType",
-    "./MeasureUnit",
-    "./MeasureValue",
     "./Padding",
     "./PositionMode",
     "./Restriction",
-    "./Size"
+    "./Size",
+    "./VertAlign"
 ], function(layout) {
 
 	return layout;

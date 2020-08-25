@@ -107,162 +107,24 @@ define('skylark-graphics-layout/layout',[
 
 	return skylark.attach("graphics.layout",layout);
 });
-define('skylark-graphics-layout/DisplayMode',[
+define('skylark-graphics-layout/AnchorStyle',[
     "skylark-langx/langx",
     "./layout"
 ],function(langx,layout) {
 
-    var DisplayMode = ["none", "inline", "block", "listtem", "inlineblock", "tableRowGroup", "tablecell", "tablerow"];
-
-    langx.mixin(DisplayMode,{
-        "none" : 0, 
-        "inline" : 1, 
-        "block" : 2, 
-        "listtem" : 3, 
-        "inlineblock" :4, 
-        "tableRowGroup" : 5, 
-        "tablecell" : 6, 
-        "tablerow" : 7
-    });
-
-    DisplayMode.fromCss = function(s) {
-        switch (s) {
-            case "none":
-                return DisplayMode.none;
-            case "inline":
-                return DisplayMode.inline;
-            case "block":
-                return DisplayMode.block;
-            case "list-item":
-                return DisplayMode.listtem;
-            case "inline-block":
-                return DisplayMode.inlineblock;
-            case "table-cell":
-                return DisplayMode.tablecell;
-            case "table-row":
-                return DisplayMode.tablerow;
-            case "table-row-group":
-                return DisplayMode.tableRowGroup
-            default:
-                return undefined;
-        }
-    };
-    
-    DisplayMode.toCss = function(mode) {
-        switch (mode) {
-            case DisplayMode.none:
-                return "none";
-            case DisplayMode.inline:
-                return "inline";
-            case DisplayMode.block:
-                return "block";
-            case DisplayMode.listtem:
-                return "list-item";
-            case DisplayMode.inlineblock:
-                return "inline-block";
-            case DisplayMode.tablecell:
-                return "table-cell";
-            case DisplayMode.tablerow:
-                return "table-row";
-            case DisplayMode.tableRowGroup:
-                return "table-row-group";
-            default:
-                return undefined;
-        }
-    };
-
-    return layout.DisplayMode = DisplayMode;
-
-});
-
-define('skylark-graphics-layout/FloatMode',[
-	"skylark-langx/langx",
-	"./layout"
-],function(langx,layout) {
-
-	var FloatMode = ["none", "left", "right"];
-
-	langx.mixin(FloatMode,{
+	var AnchorStyle = ["none", "left", "top", "right", "bottom"];
+	
+	langx.mixin(AnchorStyle,{
 		"none" : 0, 
 		"left" : 1, 
-		"right" : 2
+		"top" : 2, 
+		"right" : 3, 
+		"bottom" : 4
 	});
 
+	return layout.AnchorStyle = AnchorStyle;
 
-	return layout.FloatMode = FloatMode;
 });
-
-define('skylark-graphics-layout/Flow',[
-	"skylark-langx/langx",
-	"./layout"
-],function(langx,layout) {
-
-	var Flow = langx.klass({
-		
-		"klassName"	:	"Flow",
-
-		"display"	:	{
-			get : function() {
-				return this._.display;
-			}
-		},
-
-		"float"	:	{
-			get : function() {
-				return this._.float;
-			}
-		},
-
-		"position"	:	{
-			get : function() {
-				return this._.position;
-			}
-		},
-
-		toCss : function(css) {
-			return Flow.toCss(this,css);
-		},
-		
-		"_construct" : function(params){
-			this._ = {
-				display   : params.display,
-				float 	  : params.float,
-				position  : params.position
-
-			};
-		}
-	});
-
-	Flow.fromPlain = function(o) {
-		return new Flow({
-			display  : o.display,
-			float    : o.float,
-			position : o.position
-		});
-	};
-
-	Flow.fromCss = Flow.fromPlain;
-
-	Flow.toCss = function(flow,css) {
-        if (!css) {
-        	css = {};
-        }
-    	if (flow.display) {
-        	css.display = DisplayMode.toCss(flow.display);
-    	}
-    	if (flow.repeat) {
-        	css.float = flow.float.toString();
-    	}
-    	if (flow.position) {
-        	css.position = flow.position.toString();
-    	}
-
-        return css;
-	};
-
-	return layout.Flow = Flow;
-	
-});	
 
 define('skylark-langx-numbers/Vector2',[
 	"./numbers"
@@ -750,6 +612,447 @@ define('skylark-graphics-layout/Location',[
 
 });
 
+define('skylark-graphics-layout/Size',[
+    "skylark-langx/langx",
+	"skylark-langx-numbers/Vector2",    
+    "./layout"
+],function(langx, Vector2,layout) {
+
+    var Size = Vector2.inherit({
+        "klassName": "Size",
+		// width: Number
+		//		The width of the default rectangle, value 100.
+		"width" : {
+			get : function() {
+				return this._.width;
+			}
+		},
+		// height: Number
+		//		The height of the default rectangle, value 100.
+		"height" : {
+			get : function() {
+				return this._.height;
+			}
+		},
+
+		"clone"	: function(){
+			var _ = this._;
+			return new Size(_.width,_.height);
+		},
+
+        "toArray" : function() {
+            return [this.width,this.height];
+        },
+
+        "toPlain" : function() {
+            return {
+                "width"  : this.width,
+                "height"  : this.height
+            };
+        },
+        "toString": function() {
+        	return this.width +"," + this.height;
+        },
+
+        "init" : function(width,height) {
+        	var _ = this._ = {};
+        	_.width = width || 0;
+        	_.height = height || 0;
+        }
+	});
+	
+	Size.fromString = function(s) {
+		var a = s.split(",");
+		return new Size(parseFloat(a[0]),parseFloat(a[1]));
+	};
+
+	Size.fromPlain = function(o) {
+		return new Size(o.w || o.width,o.h || o.height);
+	};
+
+	Size.fromArray = function(a) {
+		return new Size(a[0],a[1]);
+	};
+
+	Size.Zero = new Size(0,0);
+	
+	return  layout.Size = Size;
+	
+});	
+
+define('skylark-graphics-layout/Bounds',[
+    "skylark-langx/langx",
+    "./layout",
+    "./Location",
+    "./Size"
+],function(langx,layout,Location,Size) {
+
+    var Bounds = langx.klass({
+        "klassName": "Bounds",
+        "bounds": {
+            get : function() {
+                // summary:
+                //		returns the bounding box
+                var 
+                    _ = this._,
+                    box = {
+                    x: _.x,
+                    y: this.y,
+                    width: _.width,
+                    height: _.height
+                };
+                return box;
+            }
+        },
+       "x": {
+            get : function() {
+                return this._.x;
+            }
+        },
+        // y: Number
+        //		The Y coordinate of the default rectangle's position, value 0.
+        "y": {
+            get : function() {
+                return this._.y;
+            }
+        },
+        // width: Number
+        //		The width of the default rectangle, value 100.
+        "width": {
+            get : function() {
+                return this._.width;
+            }
+        },
+        // height: Number
+        //		The height of the default rectangle, value 100.
+        "height": {
+            get : function() {
+                return this._.height;
+            }
+        },
+        // r: Number
+        //		The corner radius for the default rectangle, value 0.
+        "radius": {
+            get : function() {
+                return this._.radius;
+            }
+        },
+        "leftTop": {
+            get: function() {
+                var _ = this._;
+                return new Location(_.x, _.y);
+            }
+        },
+        "leftBottom": {
+            get: function() {
+                var _ = this._;
+                return new Location(_.x, _.y + _.height);
+            }
+        },
+        "rightTop": {
+            get: function() {
+                var _ = this._;
+                return new Location(_.x + _.width, _.y);
+            }
+        },
+        "rightBottom": {
+            get: function() {
+                var _ = this._;
+                return new Location(_.x + _.width, _.y + _.height);
+            }
+        },
+
+        "size": {
+            get: function() {
+                var _ = this._;
+                return new Size(_.width, _.height);
+            }
+        },
+
+        "move": function(dx, dy) {
+            var _ = this._;
+            return new Bounds(_.x + dx,_.y + dy,_.width,_.height,_.radius);
+        },
+
+        "containPoint": function(x,y) {
+            // support function(p)
+            if (y === undefined) {
+                var p = x;
+                x = p.x;
+                y = p.y;
+            }
+            var _ = this._;
+
+            return (x >= _.x) && (x < _.x + _.width) && (y >= _.y) && (y < _.y + _.height);
+        },
+
+		"isEmpty"	:	function(){
+			return this.width <=0 || this.height<=0;
+		},
+		
+		"notEqual"	:	function(/*Bounds*/r) {
+			return !r || r.x != this.x || r.y != this.y || r.width != this.width || r.height != this.height || r.radius != this.radius;
+		},
+		
+		"equal"	:	function(/*Bounds*/r){
+			return  !this.notEqual(r);
+		},
+		
+		"isIntersect"	:function(/*Number*/x2,/*Number*/y2,/*Number*/width2,/*Number*/height2){
+			var x1 = this.x1,y1=this.y,width1=this.width,height1=this.height;
+			 
+		    return (Math.min(x1 + width1, x2 + width2) - (x1 > x2 ? x1 : x2)) > 0 &&
+		           (Math.min(y1 + height1, y2 + height2) - (y1 > y2 ? y1 : y2)) > 0;
+		},
+		
+		"intersect"	:	function(/*Number*/x2,/*Number*/y2,/*Number*/width2,/*Number*/height2){
+			var x1 = this.x1,y1=this.y,width1=this.width,height1=this.height;
+			 
+		    return (Math.min(x1 + width1, x2 + width2) - (x1 > x2 ? x1 : x2)) > 0 &&
+		           (Math.min(y1 + height1, y2 + height2) - (y1 > y2 ? y1 : y2)) > 0;
+		},
+						
+		"unite"	: function(/*Number*/x2,/*Number*/y2,/*Number*/width2,/*Number*/height2){
+			var x1 = this.x1,y1=this.y,width1=this.width,height1=this.height;
+			 
+			var x = x1 < x2 ? x1 : x2,
+				y = y1 < y2 ? y1 : y2,
+				width  = Math.max(x1 + width1, x2 + width2) - x;
+				height = Math.max(y1 + height1, y2 + height2) - y;
+		    
+		    return new Bounds(x,y,width,height);
+		},
+		
+		"clone"	: function(){
+			var _ = this._;
+			return new Bounds(_.x,_.y,_.width,_.height,_.radius);
+		},
+
+        "init" : function(x, y, width, height, radius) {
+            var _ = this._ = {};
+            _.x = x || 0;
+            _.y = y || 0;
+            _.width = width || 0;
+            _.height = height || 0;
+            _.radius = radius || 0;
+        }
+    });
+
+
+	Bounds.fromString = function(s) {
+		var a = s.split(",");
+		return new Bounds(parseFloat(a[0]),parseFloat(a[1]),parseFloat(a[2]),parseFloat(a[3]));
+	};
+
+	Bounds.fromPlain = function(o) {
+		return new Bounds(o.x || o.l,o.y || o.t, o.w || o.width,o.h || o.height);
+	};
+
+	Bounds.fromArray = function(a) {
+		return new Bounds(a[0],a[1],a[2],a[3]);
+	};
+	
+	Bounds.Zero = new Bounds(0,0,0,0);
+	
+
+	return layout.Bounds = Bounds;
+	
+});	
+
+define('skylark-graphics-layout/Direction',[
+    "skylark-langx/langx",
+    "./layout"
+],function(langx,layout) {
+	
+	var Direction = ["leftRight","rightLeft","topDown","bottomUp"];
+
+	langx.mixin(Direction,{
+		"leftRight" : 0,
+		"rightLeft" : 1,
+		"topDown" : 2,
+		"bottomUp" : 3
+	});
+
+	return layout.Direction = Direction;
+	
+});	
+
+define('skylark-graphics-layout/DisplayMode',[
+    "skylark-langx/langx",
+    "./layout"
+],function(langx,layout) {
+
+    var DisplayMode = ["none", "inline", "block", "listtem", "inlineblock", "tableRowGroup", "tablecell", "tablerow"];
+
+    langx.mixin(DisplayMode,{
+        "none" : 0, 
+        "inline" : 1, 
+        "block" : 2, 
+        "listtem" : 3, 
+        "inlineblock" :4, 
+        "tableRowGroup" : 5, 
+        "tablecell" : 6, 
+        "tablerow" : 7
+    });
+
+    DisplayMode.fromCss = function(s) {
+        switch (s) {
+            case "none":
+                return DisplayMode.none;
+            case "inline":
+                return DisplayMode.inline;
+            case "block":
+                return DisplayMode.block;
+            case "list-item":
+                return DisplayMode.listtem;
+            case "inline-block":
+                return DisplayMode.inlineblock;
+            case "table-cell":
+                return DisplayMode.tablecell;
+            case "table-row":
+                return DisplayMode.tablerow;
+            case "table-row-group":
+                return DisplayMode.tableRowGroup
+            default:
+                return undefined;
+        }
+    };
+    
+    DisplayMode.toCss = function(mode) {
+        switch (mode) {
+            case DisplayMode.none:
+                return "none";
+            case DisplayMode.inline:
+                return "inline";
+            case DisplayMode.block:
+                return "block";
+            case DisplayMode.listtem:
+                return "list-item";
+            case DisplayMode.inlineblock:
+                return "inline-block";
+            case DisplayMode.tablecell:
+                return "table-cell";
+            case DisplayMode.tablerow:
+                return "table-row";
+            case DisplayMode.tableRowGroup:
+                return "table-row-group";
+            default:
+                return undefined;
+        }
+    };
+
+    return layout.DisplayMode = DisplayMode;
+
+});
+
+define('skylark-graphics-layout/FloatMode',[
+	"skylark-langx/langx",
+	"./layout"
+],function(langx,layout) {
+
+	var FloatMode = ["none", "left", "right"];
+
+	langx.mixin(FloatMode,{
+		"none" : 0, 
+		"left" : 1, 
+		"right" : 2
+	});
+
+
+	return layout.FloatMode = FloatMode;
+});
+
+define('skylark-graphics-layout/Flow',[
+	"skylark-langx/langx",
+	"./layout"
+],function(langx,layout) {
+
+	var Flow = langx.klass({
+		
+		"klassName"	:	"Flow",
+
+		"display"	:	{
+			get : function() {
+				return this._.display;
+			}
+		},
+
+		"float"	:	{
+			get : function() {
+				return this._.float;
+			}
+		},
+
+		"position"	:	{
+			get : function() {
+				return this._.position;
+			}
+		},
+
+		toCss : function(css) {
+			return Flow.toCss(this,css);
+		},
+		
+		"_construct" : function(params){
+			this._ = {
+				display   : params.display,
+				float 	  : params.float,
+				position  : params.position
+
+			};
+		}
+	});
+
+	Flow.fromPlain = function(o) {
+		return new Flow({
+			display  : o.display,
+			float    : o.float,
+			position : o.position
+		});
+	};
+
+	Flow.fromCss = Flow.fromPlain;
+
+	Flow.toCss = function(flow,css) {
+        if (!css) {
+        	css = {};
+        }
+    	if (flow.display) {
+        	css.display = DisplayMode.toCss(flow.display);
+    	}
+    	if (flow.repeat) {
+        	css.float = flow.float.toString();
+    	}
+    	if (flow.position) {
+        	css.position = flow.position.toString();
+    	}
+
+        return css;
+	};
+
+	return layout.Flow = Flow;
+	
+});	
+
+define('skylark-graphics-layout/HorzAlign',[
+    "skylark-langx/langx",
+    "./layout"
+],function(langx,layout) {
+
+	
+	var HorzAlign = ["left","center","right","stretch"];
+	
+	langx.mixin(HorzAlign,{
+		"left" : 0,
+		"center": 1 ,
+		"right" : 2,
+		"stretch" : 3
+	});
+	
+
+	return layout.HorzAlign = HorzAlign;	
+});	
+
 define('skylark-graphics-layout/Margin',[
     "skylark-langx/langx",
     "./layout"
@@ -968,226 +1271,6 @@ define('skylark-graphics-layout/Margin',[
 
     return Margin;
 });
-
-define('skylark-graphics-layout/MeasureType',[
-	"skylark-langx/langx",
-	"./layout"
-],function(langx,layout) {
-
-	var MeasureType = ["auto","inherit","initial","mid","min","max","none","percent","unit"];
-	
-	langx.mixin(MeasureType,{
-		"auto" : 0,
-		"inherit" : 1,
-		"initial" : 2,
-		"mid" : 3,
-		"min" : 4,
-		"max" : 5,
-		"none" : 6,
-		"percent" : 7,
-		"unit" : 8
-	});
-
-	return layout.MeasureType = MeasureType;
-
-});
-
-define('skylark-graphics-layout/MeasureUnit',[
-	"skylark-langx/langx",
-	"./layout"
-],function(langx,layout) {
-
-	var MeasureUnit = ["em", "ex", "px", "pt", "pc", "cm", "mm", "in"];
-
-	langx.mixin(MeasureUnit,{
-		"em" : 0, 
-		"ex" : 1, 
-		"px" : 2, 
-		"pt" : 3, 
-		"pc" : 4, 
-		"cm" : 5, 
-		"mm" : 6, 
-		"in" : 7
-	});
-
-	return layout.MeasureUnit = MeasureUnit;
-
-});
-
-define('skylark-graphics-layout/MeasureValue',[
-	"skylark-langx/langx",
-	"./layout",
-	"./MeasureType",
-	"./MeasureUnit"
-],function(langx,layout,MeasureType,MeasureUnit) {
-
-	var MeasureValue = langx.klass({
-		"klassName"	:	"MeasureValue",
-
-		"mtype" : {
-			get : function(){
-				return this._.mtype;
-			},
-			set : function(t) {
-				var _ = this._;
-				_.mtype = t;
-				switch (t) {
-					case MeasureType.auto :
-						_.unit = null;
-						_.value = null;
-						break;
-					case MeasureType.percent :
-						_.unit = null;
-						break;
-					default :
-						break;
-					
-				}
-			}
-		},
-
-		"unit" : {
-			get : function(){
-				return this._.unit;
-			},
-
-			set : function(u) {
-				var _ = this._;
-					t = _.mtype;
-				switch (t) {
-					case MeasureType.unit :
-						_.unit = u;
-						break;
-					default :
-						break;
-					
-				}
-			}
-		},
-
-		"value" : {
-			get : function(){
-				return this._.value;
-			},
-			set : function(v) {
-				var _ = this._;
-					t = _.mtype;
-				switch (t) {
-					case MeasureType.unit :
-					case MeasureType.percent :
-						_.value = v;
-						break;
-					default :
-						break;
-					
-				}
-			}
-		},
-
-		"clone"	: function(){
-			var _ = this._;
-			return new MeasureValue(_.mtype,_.unit,_.value);
-		
-		},
-		
-		"notEqual"	:	function(/*Measure*/m) {
-			return !m || m.mtype != this.mtype || m.unit != this.unit || m.value != this.value;
-		},
-		
-		"equal"	:	function(/*Measure*/m){
-			return  !this.notEqual(m);
-		},
-
-		"toString" : function(){
-			switch (this.mtype) {
-				case MeasureType.auto :
-				case MeasureType.min :
-				case MeasureType.max :
-				case MeasureType.mid :
-					return this.mtype.toString();
-				case MeasureType.unit :
-					return this.value + this.unit.toString();
-				case MeasureType.percent :
-					return this.value + "%";
-					break;
-				
-			}
-		},	
-		
-		"_construct"	: function(type,value,unit){
-			var props = {};
-			if (type != undefined) {
-				props.mtype = type;
-			}
-			if (value != undefined) {
-				props.value = value;
-			}
-			if (unit != undefined) {
-				props.unit = unit;
-			}
-			this._ = props;
-		}
-	});
-
-
-	MeasureValue.fromNumber = function(n) {
-        return new MeasureValue(MeasureType.unit,n,MeasureUnit.px);
-	};
-	
-	MeasureValue.fromString = function(s) {
-		if (s=="auto"){
-			return MeasureValue.auto;
-		}
-
-		if (s=="min"){
-			return MeasureValue.min;
-		}
-
-		if (s=="max"){
-			return MeasureValue.max;
-		}
-
-		if (s=="mid"){
-			return MeasureValue.mid;
-		}
-
-		var units = MeasureUnit.map(function(item){
-				return item.getText();
-			}).concat("%"),
-			type,
-			value,
-			unit;
-        for (var i = 0; i < units.length; i++) {
-            if (s.indexOf(units[i]) != -1) {
-                value = parseInt(s.substring(0, s.length - units[i].length),10);
-                if (units[i] == "%") {
-                	type = MeasureType.percent;
-                } else {
-                	type = MeasureType.unit;
-                	unit = MeasureUnit.fromString(units[i]);
-                }
-                break;
-            }
-        }
-        return new MeasureValue(type,value,unit);
-	};
-
-	MeasureValue.fromPlain = function(o) {
-		return new MeasureValue(o.mtype,o.value,o.unit);
-	};
-
-	MeasureValue.fromArray = function(a) {
-		return new MeasureValue(a[0],a.length>1?a[1]:"undefined",a.length>1?a[2]:undefined);
-	};
-
-	MeasureValue.auto = new MeasureValue(MeasureType.auto);
-	MeasureValue.mid = new MeasureValue(MeasureType.mid);
-	MeasureValue.min = new MeasureValue(MeasureType.min);
-	MeasureValue.max = new MeasureValue(MeasureType.max);
-
-	return layout.MeasureValue = MeasureValue;
-	
-});	
 
 define('skylark-graphics-layout/Padding',[
     "skylark-langx/langx",
@@ -1548,88 +1631,40 @@ define('skylark-graphics-layout/Restriction',[
 	
 });	
 
-define('skylark-graphics-layout/Size',[
+define('skylark-graphics-layout/VertAlign',[
     "skylark-langx/langx",
-	"skylark-langx-numbers/Vector2",    
     "./layout"
-],function(langx, Vector2,layout) {
+],function(langx,layout) {
 
-    var Size = Vector2.inherit({
-        "klassName": "Size",
-		// width: Number
-		//		The width of the default rectangle, value 100.
-		"width" : {
-			get : function() {
-				return this._.width;
-			}
-		},
-		// height: Number
-		//		The height of the default rectangle, value 100.
-		"height" : {
-			get : function() {
-				return this._.height;
-			}
-		},
-
-		"clone"	: function(){
-			var _ = this._;
-			return new Size(_.width,_.height);
-		},
-
-        "toArray" : function() {
-            return [this.width,this.height];
-        },
-
-        "toPlain" : function() {
-            return {
-                "width"  : this.width,
-                "height"  : this.height
-            };
-        },
-        "toString": function() {
-        	return this.width +"," + this.height;
-        },
-
-        "init" : function(width,height) {
-        	var _ = this._ = {};
-        	_.width = width || 0;
-        	_.height = height || 0;
-        }
+	var VertAlign = ["top","center","bottom","stretch"];
+	
+	langx.mixin(VertAlign,{
+		"top" : 0,
+		"center" : 1,
+		"bottom" : 2,
+		"stretch" : 3
 	});
-	
-	Size.fromString = function(s) {
-		var a = s.split(",");
-		return new Size(parseFloat(a[0]),parseFloat(a[1]));
-	};
 
-	Size.fromPlain = function(o) {
-		return new Size(o.w || o.width,o.h || o.height);
-	};
-
-	Size.fromArray = function(a) {
-		return new Size(a[0],a[1]);
-	};
-
-	Size.Zero = new Size(0,0);
-	
-	return  layout.Size = Size;
+	return Alignment;
 	
 });	
 
 define('skylark-graphics-layout/main',[
     "./layout",
+    "./AnchorStyle",
+    "./Bounds",
+    "./Direction",
     "./DisplayMode",
     "./FloatMode",
     "./Flow",
+    "./HorzAlign",
     "./Location",
     "./Margin",
-    "./MeasureType",
-    "./MeasureUnit",
-    "./MeasureValue",
     "./Padding",
     "./PositionMode",
     "./Restriction",
-    "./Size"
+    "./Size",
+    "./VertAlign"
 ], function(layout) {
 
 	return layout;
