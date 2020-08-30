@@ -128,7 +128,7 @@ define('skylark-graphics-layout/AnchorStyle',[
 
 define('skylark-graphics-layout/Location',[
     "skylark-langx/langx",
-	"skylark-langx-numerics/Vector2",    
+    "skylark-langx-numerics/Vector2",    
     "./layout"
 ],function(langx, Vector2,layout) {
 
@@ -142,7 +142,7 @@ define('skylark-graphics-layout/Location',[
             },
 
             set : function(v) {
-            	this.x = v;
+                this.x = v;
             }
 
         },
@@ -153,21 +153,78 @@ define('skylark-graphics-layout/Location',[
             },
 
             set : function(v) {
-            	this.y = v;
+                this.y = v;
             }
 
-        }
-	});
+        },
 
-	return layout.Location = Location;
+        "clone" : function(){
+            return new Location(this.left,this.top);
+        },
+
+        "toArray" : function() {
+            return [this.left,this.top];
+        },
+
+        "toPlain" : function() {
+            return {
+                "left"  : this.left,
+                "top"  : this.top
+            };
+        },
+        "toString": function() {
+            return this.left +"," + this.top;
+        },
+
+        toCss: function(css) {
+            return Location.toCss(this, css);
+        }
+
+    });
+
+    Location.fromString = function(s) {
+        var a = s.split(",");
+        return Location.fromArray(a);
+    };
+
+    Location.fromPlain = function(o) {
+        var x = o.x || o.l || o.left,
+            y = o.y || o.t || o.top;
+//        x = x ? x : MeasureValue.auto;
+//        y = y ? y : MeasureValue.auto;
+        return new Location(x, y);
+    };
+
+    Location.fromArray = function(a) {
+        return new Location(a[0], a.length > 1 ? a[1] : undefined);
+    };
+
+    Location.fromCss = function(css) {
+        return Point.fromPlain({
+            x: css.left,
+            y: css.top
+        });
+    };
+    
+    Location.toCss = function(loc, css) {
+        if (!css) {
+            css = {};
+        }
+        css.left = loc.x && loc.x.toString();
+        css.top = loc.y && loc.y.toString();
+
+        return css;
+    };
+    return layout.Location = Location;
 
 });
 
 define('skylark-graphics-layout/Size',[
     "skylark-langx/langx",
-	"skylark-langx-numerics/Vector2",    
+	"skylark-langx-numerics/Vector2",   
+	"skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx, Vector2,layout) {
+],function(langx, Vector2,MeasureValue,layout) {
 
     var Size = Vector2.inherit({
         "klassName": "Size",
@@ -211,7 +268,61 @@ define('skylark-graphics-layout/Size',[
         	_.height = height || 0;
         }
 	});
-	
+
+	Size.fromString = function(s) {
+		var a = s.split(" ");
+        for (var i = 0; i<a.length;i++) {
+            if (a[i]== "null") {
+                a[i] = null;
+            } else if (a[i] == "undefined") {
+                a[i] = undefined;
+            }
+        }
+        return Size.fromArray(a);
+	};
+
+	Size.fromPlain = function(o) {
+        var width = o.width || o.w,
+            height = o.height || o.h;
+//        width = width ? width : MeasureValue.auto;
+//        height = height ? height : MeasureValue.auto;
+
+		return new Size(width,height);
+	};
+
+	Size.fromArray = function(a) {
+		return new Size(a[0],a.length>1?a[1]:a[0]);
+	};
+
+    Size.fromCss = function(css) {
+        return Size.fromPlain(css);
+    };
+
+    Size.toCss = function(size,css) {
+        if (!css) {
+            css = {};
+        }
+        if (size) {
+            var width = size.width,
+                height = size.height;
+
+            if (width) {
+                css.width = width.toString();
+            }
+            if (height) {
+                css.height = height.toString();
+            }
+        }
+
+        return css;
+    };    
+
+    Size.auto = new Size(
+        MeasureValue.auto,
+        MeasureValue.auto
+    );
+
+/*
 	Size.fromString = function(s) {
 		var a = s.split(",");
 		return new Size(parseFloat(a[0]),parseFloat(a[1]));
@@ -224,6 +335,7 @@ define('skylark-graphics-layout/Size',[
 	Size.fromArray = function(a) {
 		return new Size(a[0],a[1]);
 	};
+*/
 
 	Size.Zero = new Size(0,0);
 	
