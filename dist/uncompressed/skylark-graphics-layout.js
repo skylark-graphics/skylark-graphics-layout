@@ -128,59 +128,68 @@ define('skylark-graphics-layout/AnchorStyle',[
 
 define('skylark-graphics-layout/Location',[
     "skylark-langx/langx",
-    "skylark-langx-numerics/Vector2",    
+    "skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx, Vector2,layout) {
+],function(langx,MeasureValue, layout) {
 
-    var Location =  Vector2.inherit({
+    var Location =  langx.klass({
 
         "klassName": "Location",
 
-        "left": {
+        "x": {
             get : function() {
-                return this.x;
+                return this._.x;
             },
 
             set : function(v) {
-                this.x = v;
+            	this._.x = MeasureValue.parse(v);
             }
 
         },
 
-        "top": {
+        "y": {
             get : function() {
-                return this.y;
+                return this._.y;
             },
 
             set : function(v) {
-                this.y = v;
+            	this._.y = MeasureValue.parse(v);
             }
 
         },
 
         "clone" : function(){
-            return new Location(this.left,this.top);
+            return new Location(this.x,this.y);
         },
 
         "toArray" : function() {
-            return [this.left,this.top];
+            return [this.x,this.y];
         },
 
         "toPlain" : function() {
             return {
-                "left"  : this.left,
-                "top"  : this.top
+                "x"  : this.x,
+                "y"  : this.y
             };
         },
         "toString": function() {
-            return this.left +"," + this.top;
+            return this.x +"," + this.y;
         },
 
         toCss: function(css) {
             return Location.toCss(this, css);
+        },
+
+        "_construct" : function(x, y) {
+            this._ = {
+                "x": MeasureValue.parse(x),
+                "y": MeasureValue.parse(y)
+            };
         }
 
-    });
+	});
+
+
 
     Location.fromString = function(s) {
         var a = s.split(",");
@@ -205,7 +214,7 @@ define('skylark-graphics-layout/Location',[
             y: css.top
         });
     };
-    
+
     Location.toCss = function(loc, css) {
         if (!css) {
             css = {};
@@ -215,37 +224,43 @@ define('skylark-graphics-layout/Location',[
 
         return css;
     };
-    return layout.Location = Location;
+
+
+	return layout.Location = Location;
 
 });
 
 define('skylark-graphics-layout/Size',[
     "skylark-langx/langx",
-	"skylark-langx-numerics/Vector2",   
 	"skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx, Vector2,MeasureValue,layout) {
+],function(langx, MeasureValue,layout) {
 
-    var Size = Vector2.inherit({
+    var Size = langx.klass({
         "klassName": "Size",
 		// width: Number
 		//		The width of the default rectangle, value 100.
 		"width" : {
 			get : function() {
 				return this._.width;
-			}
+			},
+            set : function(v) {
+                this._.width = MeasureValue.parse(v);
+            }
 		},
 		// height: Number
 		//		The height of the default rectangle, value 100.
 		"height" : {
 			get : function() {
 				return this._.height;
-			}
+			},
+            set : function(v) {
+                this._.height = MeasureValue.parse(v);
+            }
 		},
 
 		"clone"	: function(){
-			var _ = this._;
-			return new Size(_.width,_.height);
+			return new Size(this.width,this.height);
 		},
 
         "toArray" : function() {
@@ -254,18 +269,20 @@ define('skylark-graphics-layout/Size',[
 
         "toPlain" : function() {
             return {
-                "width"  : this.width,
-                "height"  : this.height
+                "width"  : this.width.toStrng(),
+                "height"  : this.height.toString()
             };
         },
+
         "toString": function() {
-        	return this.width +"," + this.height;
+        	return this.width.toString() +" " + this.height.toString();
         },
 
-        "init" : function(width,height) {
-        	var _ = this._ = {};
-        	_.width = width || 0;
-        	_.height = height || 0;
+        "_construct" :function(width, height) {
+            this._ = {
+                "width": MeasureValue.parse(width),
+                "height": MeasureValue.parse(height)
+            };
         }
 	});
 
@@ -322,22 +339,6 @@ define('skylark-graphics-layout/Size',[
         MeasureValue.auto
     );
 
-/*
-	Size.fromString = function(s) {
-		var a = s.split(",");
-		return new Size(parseFloat(a[0]),parseFloat(a[1]));
-	};
-
-	Size.fromPlain = function(o) {
-		return new Size(o.w || o.width,o.h || o.height);
-	};
-
-	Size.fromArray = function(a) {
-		return new Size(a[0],a[1]);
-	};
-*/
-
-	Size.Zero = new Size(0,0);
 	
 	return  layout.Size = Size;
 	
@@ -625,10 +626,30 @@ define('skylark-graphics-layout/FloatMode',[
 	return layout.FloatMode = FloatMode;
 });
 
-define('skylark-graphics-layout/Flow',[
+define('skylark-graphics-layout/PositionMode',[
 	"skylark-langx/langx",
 	"./layout"
 ],function(langx,layout) {
+
+    var PositionMode = ["absolute", "fixed", "relative", "static"];
+
+    langx.mixin(PositionMode,{
+    	"absolute" : 0, 
+    	"fixed" : 1, 
+    	"relative" : 2, 
+    	"static" : 3
+    });
+
+    return layout.PositionMode = PositionMode;
+});
+
+define('skylark-graphics-layout/Flow',[
+	"skylark-langx/langx",
+	"./layout",
+	"./DisplayMode",
+	"./FloatMode",
+	"./PositionMode"
+],function(langx,layout,DisplayMode,FloatMode,PositionMode) {
 
 	var Flow = langx.klass({
 		
@@ -658,9 +679,9 @@ define('skylark-graphics-layout/Flow',[
 		
 		"_construct" : function(params){
 			this._ = {
-				display   : params.display,
-				float 	  : params.float,
-				position  : params.position
+				display   : langx.isString(params.display) ? DisplayMode[params.display] : params.display,
+				float 	  : langx.isString(params.float) ? FloatMode[params.float] : params.float,
+				position  : langx.isString(params.position) ? PositionMode[params.position] : params.position
 
 			};
 		}
@@ -684,10 +705,10 @@ define('skylark-graphics-layout/Flow',[
         	css.display = DisplayMode.toCss(flow.display);
     	}
     	if (flow.repeat) {
-        	css.float = flow.float.toString();
+        	css.float = FloatMode[flow.float]; // flow.float.toString();
     	}
     	if (flow.position) {
-        	css.position = flow.position.toString();
+        	css.position = PositionMode[flow.position]; //flow.position.toString();
     	}
 
         return css;
@@ -859,7 +880,7 @@ define('skylark-graphics-layout/Margin',[
         }
     });
 
-    Object.mixin(Margin, {
+    langx.mixin(Margin, {
         "fromArray" : function(a) {
             switch (a.length) {
                 case 1 : return new Margin(a[0],a[0],a[0],a[0]);
@@ -1153,23 +1174,6 @@ define('skylark-graphics-layout/Padding',[
     };
 
     return Padding;
-});
-
-define('skylark-graphics-layout/PositionMode',[
-	"skylark-langx/langx",
-	"./layout"
-],function(langx,layout) {
-
-    var PositionMode = ["absolute", "fixed", "relative", "static"];
-
-    langx.mixin(PositionMode,{
-    	"absolute" : 0, 
-    	"fixed" : 1, 
-    	"relative" : 2, 
-    	"static" : 3
-    });
-
-    return layout.PositionMode = PositionMode;
 });
 
 define('skylark-graphics-layout/Restriction',[

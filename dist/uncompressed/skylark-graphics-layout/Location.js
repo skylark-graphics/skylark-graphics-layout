@@ -1,58 +1,67 @@
 define([
     "skylark-langx/langx",
-    "skylark-langx-numerics/Vector2",    
+    "skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx, Vector2,layout) {
+],function(langx,MeasureValue, layout) {
 
-    var Location =  Vector2.inherit({
+    var Location =  langx.klass({
 
         "klassName": "Location",
 
-        "left": {
+        "x": {
             get : function() {
-                return this.x;
+                return this._.x;
             },
 
             set : function(v) {
-                this.x = v;
+            	this._.x = MeasureValue.parse(v);
             }
 
         },
 
-        "top": {
+        "y": {
             get : function() {
-                return this.y;
+                return this._.y;
             },
 
             set : function(v) {
-                this.y = v;
+            	this._.y = MeasureValue.parse(v);
             }
 
         },
 
         "clone" : function(){
-            return new Location(this.left,this.top);
+            return new Location(this.x,this.y);
         },
 
         "toArray" : function() {
-            return [this.left,this.top];
+            return [this.x,this.y];
         },
 
         "toPlain" : function() {
             return {
-                "left"  : this.left,
-                "top"  : this.top
+                "x"  : this.x,
+                "y"  : this.y
             };
         },
         "toString": function() {
-            return this.left +"," + this.top;
+            return this.x +"," + this.y;
         },
 
         toCss: function(css) {
             return Location.toCss(this, css);
+        },
+
+        "_construct" : function(x, y) {
+            this._ = {
+                "x": MeasureValue.parse(x),
+                "y": MeasureValue.parse(y)
+            };
         }
 
-    });
+	});
+
+
 
     Location.fromString = function(s) {
         var a = s.split(",");
@@ -77,7 +86,7 @@ define([
             y: css.top
         });
     };
-    
+
     Location.toCss = function(loc, css) {
         if (!css) {
             css = {};
@@ -87,6 +96,8 @@ define([
 
         return css;
     };
-    return layout.Location = Location;
+
+
+	return layout.Location = Location;
 
 });

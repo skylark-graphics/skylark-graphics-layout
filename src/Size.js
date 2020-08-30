@@ -1,30 +1,34 @@
 define([
     "skylark-langx/langx",
-	"skylark-langx-numerics/Vector2",   
 	"skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx, Vector2,MeasureValue,layout) {
+],function(langx, MeasureValue,layout) {
 
-    var Size = Vector2.inherit({
+    var Size = langx.klass({
         "klassName": "Size",
 		// width: Number
 		//		The width of the default rectangle, value 100.
 		"width" : {
 			get : function() {
 				return this._.width;
-			}
+			},
+            set : function(v) {
+                this._.width = MeasureValue.parse(v);
+            }
 		},
 		// height: Number
 		//		The height of the default rectangle, value 100.
 		"height" : {
 			get : function() {
 				return this._.height;
-			}
+			},
+            set : function(v) {
+                this._.height = MeasureValue.parse(v);
+            }
 		},
 
 		"clone"	: function(){
-			var _ = this._;
-			return new Size(_.width,_.height);
+			return new Size(this.width,this.height);
 		},
 
         "toArray" : function() {
@@ -33,18 +37,20 @@ define([
 
         "toPlain" : function() {
             return {
-                "width"  : this.width,
-                "height"  : this.height
+                "width"  : this.width.toStrng(),
+                "height"  : this.height.toString()
             };
         },
+
         "toString": function() {
-        	return this.width +"," + this.height;
+        	return this.width.toString() +" " + this.height.toString();
         },
 
-        "init" : function(width,height) {
-        	var _ = this._ = {};
-        	_.width = width || 0;
-        	_.height = height || 0;
+        "_construct" :function(width, height) {
+            this._ = {
+                "width": MeasureValue.parse(width),
+                "height": MeasureValue.parse(height)
+            };
         }
 	});
 
@@ -101,22 +107,6 @@ define([
         MeasureValue.auto
     );
 
-/*
-	Size.fromString = function(s) {
-		var a = s.split(",");
-		return new Size(parseFloat(a[0]),parseFloat(a[1]));
-	};
-
-	Size.fromPlain = function(o) {
-		return new Size(o.w || o.width,o.h || o.height);
-	};
-
-	Size.fromArray = function(a) {
-		return new Size(a[0],a[1]);
-	};
-*/
-
-	Size.Zero = new Size(0,0);
 	
 	return  layout.Size = Size;
 	

@@ -141,7 +141,7 @@ define([
         }
     });
 
-    Object.mixin(Margin, {
+    langx.mixin(Margin, {
         "fromArray" : function(a) {
             switch (a.length) {
                 case 1 : return new Margin(a[0],a[0],a[0],a[0]);
