@@ -1,6 +1,6 @@
 define([
     "skylark-langx/langx",
-	"skylark-langx-numbers/Vector2",    
+	"skylark-langx-numerics/Vector2",    
     "./layout"
 ],function(langx, Vector2,layout) {
 

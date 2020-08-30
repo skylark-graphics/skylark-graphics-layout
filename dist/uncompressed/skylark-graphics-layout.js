@@ -126,9 +126,9 @@ define('skylark-graphics-layout/AnchorStyle',[
 
 });
 
-define('skylark-langx-numbers/Vector2',[
-	"./numbers"
-] ,function(numbers) {
+define('skylark-langx-numerics/Vector2',[
+	"./numerics"
+] ,function(numerics) {
 
 
 	function Vector2( x, y ) {
@@ -572,12 +572,12 @@ define('skylark-langx-numbers/Vector2',[
 	} );
 
 
-	return numbers.Vector2 = Vector2 ;
+	return numerics.Vector2 = Vector2 ;
 });
 
 define('skylark-graphics-layout/Location',[
     "skylark-langx/langx",
-	"skylark-langx-numbers/Vector2",    
+	"skylark-langx-numerics/Vector2",    
     "./layout"
 ],function(langx, Vector2,layout) {
 
@@ -614,7 +614,7 @@ define('skylark-graphics-layout/Location',[
 
 define('skylark-graphics-layout/Size',[
     "skylark-langx/langx",
-	"skylark-langx-numbers/Vector2",    
+	"skylark-langx-numerics/Vector2",    
     "./layout"
 ],function(langx, Vector2,layout) {
 
