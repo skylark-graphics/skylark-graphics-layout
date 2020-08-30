@@ -1,7 +1,8 @@
 define([
     "skylark-langx/langx",
+    "skylark-langx-measures/MeasureValue",
     "./layout"
-],function(langx,layout) {
+],function(langx,MeasureValue,layout) {
 
     var Restriction = langx.klass({
         "klassName": "Restriction",
@@ -53,12 +54,12 @@ define([
 
     });
 
-	Restriction.fromString = function(s) {
-		var a = s.split(" ");
+    Restriction.fromString = function(s) {
+        var a = s.split(" ");
         return Restriction.fromArray(a);
-	};
+    };
 
-	Restriction.fromPlain = function(o) {
+    Restriction.fromPlain = function(o) {
         var minWidth = o.minWidth,
             minHeight = o.minHeight,
             maxWidth = o.maxWidth,
@@ -68,16 +69,16 @@ define([
         maxWidth = maxWidth ? maxWidth : MeasureValue.none;
         maxHeight = maxHeight ? maxHeight : MeasureValue.none;
 
-		return new Restriction(minWidth, minHeight,maxWidth, maxHeight);
-	};
+        return new Restriction(minWidth, minHeight,maxWidth, maxHeight);
+    };
 
-	Restriction.fromArray = function(a) {
-		return new Restriction(a.length>0?a[0]:MeasureValue.none,
+    Restriction.fromArray = function(a) {
+        return new Restriction(a.length>0?a[0]:MeasureValue.none,
                                a.length>1?a[1]:MeasureValue.none,
                                a.length>2?a[2]:MeasureValue.none,
                                a.length>3?a[3]:MeasureValue.none
                     );
-	};
+    };
 
     Restriction.fromCss = function(css) {
         return Restriction.fromPlain(css);
@@ -117,5 +118,5 @@ define([
         MeasureValue.none
     );
     return Restriction;
-	
-});	
+    
+}); 
